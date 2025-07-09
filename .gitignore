@@ -1,0 +1,10 @@
+# Secrets & fichiers de config
+.env
+*.env
+GEMINI.md
+
+# Dossiers à ignorer
+__pycache__/
+node_modules/
+dist/
+build/
