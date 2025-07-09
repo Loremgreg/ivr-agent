@@ -12,7 +12,7 @@ from livekit import agents
 from livekit.agents import JobContext, WorkerOptions, cli
 from livekit.agents.llm import function_tool
 from livekit.agents.voice import Agent, AgentSession, RunContext
-from livekit.plugins import openai, silero, cartesia, deepgram
+from livekit.plugins import openai, silero, deepgram
 from pydantic import Field
 
 load_dotenv(dotenv_path=".env.local")
@@ -45,10 +45,11 @@ class NavigatorAgent(Agent):
             # Update the agent with task-specific instructions
             instructions = (
                 f"""
-                You are a person who is calling a phone number to accomplish a task.
-                Speak from the perspective of the caller.
+                You are a person calling a voicemail system.
                 Your goal as the caller is to: {task}.
                 Listen carefully and pick the most appropriate option from the IVR menu.
+                You may have to enter a PIN code or select menu options (using DTMF tones) to access voicemail messages.
+                Once you have accessed the voicemail, listen passively to the messages.
                 """
             )
             await self.update_instructions(instructions)
@@ -108,11 +109,10 @@ async def entrypoint(ctx: JobContext):
         # Create and start the agent session
         session = AgentSession(
             userdata=userdata,
-            stt=deepgram.STT(),
-            llm=openai.LLM(base_url="https://api.deepseek.com/v1",
-                          model="deepseek-chat",
-                          api_key=os.getenv("DEEPSEEK_API_KEY")),
-            tts=cartesia.TTS(),
+            stt=deepgram.STT(model="nova-3", language="multi"),
+            llm=openai.LLM(
+                          model="gpt-4o-mini", temperature=0.2,
+                          api_key=os.getenv("OPENAI_API_KEY")),
             vad=silero.VAD.load(),
             min_endpointing_delay=0.75
         )
