@@ -2,6 +2,7 @@
 .env
 *.env
 GEMINI.md
+telnyx101.md 
 
 # Dossiers à ignorer
 __pycache__/
